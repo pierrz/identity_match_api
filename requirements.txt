@@ -1,0 +1,10 @@
+fastapi[all]
+pandas
+nltk
+numpy
+typing
+black
+flake8
+isort
+tox
+pytest

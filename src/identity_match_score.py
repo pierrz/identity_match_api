@@ -1,29 +1,7 @@
 from typing import Union
 import pandas as pd
+import json
 from nltk.metrics.distance import edit_distance
-
-data = {
-    "pair1": {
-        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": None},
-        "id2": {"fullname": "Andrew Craw", "birthdate": None, "bsn": None},
-        "identity_match_score": 0.6,
-    },
-    "pair2": {
-        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": None},
-        "id2": {"fullname": "Petty Smith", "birthdate": "20-02-1985", "bsn": None},
-        "identity_match_score": 0.4,
-    },
-    "pair3": {
-        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": None},
-        "id2": {"fullname": "A. Craw", "birthdate": "20-02-1985", "bsn": None},
-        "identity_match_score": 0.95,
-    },
-    "pair4": {
-        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": 931212312},
-        "id2": {"fullname": "Petty Smith", "birthdate": "20-02-1985", "bsn": 931212312},
-        "identity_match_score": 1,
-    },
-}
 
 """
 TODO:
@@ -32,17 +10,23 @@ TODO:
 - doc
 - docker & tox
 - SAP
+- lambda <= get_last_name_score()
 """
 
 
 class IdentityMatchDataframe:
-    raw_data = pd.DataFrame.from_dict(data, orient="index")
+
+    raw_data: pd.DataFrame
+    clean_data: pd.DataFrame
+    identity_match_scores: pd.Series
     col_names = ["fullname", "birthdate", "bsn"]
     fullname_cols = ["fullname1", "fullname2"]
 
-    def __init__(self):
+    def import_and_process_data(self, data_path: str):
+        data = json.load(open(data_path, "r"))
+        self.raw_data = pd.DataFrame.from_dict(data, orient="index")
         self.clean_data = self.prepare_clean_data()
-        self.similarity_score = self.calculate()
+        self.identity_match_scores = self.calculate()
 
     def prepare_clean_data(self):
         df_list = list()
@@ -61,9 +45,9 @@ class IdentityMatchDataframe:
             )
             df_list.append(expanded_dicts_df)
 
-        return self.raw_data["identity_match_score"].to_frame().join(df_list)
+        return df_list[0].join(df_list[1:])
 
-    def calculate(self):
+    def calculate(self) -> pd.Series:
         """
         - If the dates of birth are known and not the same, there is no match
         - If the BSN number matches then 100%
@@ -92,7 +76,9 @@ class IdentityMatchDataframe:
             other=match_values.where(
                 identical_bsn_mask, other=no_bsn_date_match_values
             ),
-        )
+        ).round(
+            2
+        )  # rounding seems necessary to avoid some strange results such as 0.6000000000000001
 
     def get_notna_mask(self, col1_name: str, col2_name: str):
         return self.clean_data[col1_name].notna() & self.clean_data[col2_name].notna()

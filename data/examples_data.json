@@ -1,0 +1,26 @@
+{
+    "pair1": {
+        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null},
+        "id2": {"fullname": "Andrew Craw", "birthdate": null, "bsn": null}
+    },
+    "pair2": {
+        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null},
+        "id2": {"fullname": "Petty Smith", "birthdate": "20-02-1985", "bsn": null}
+    },
+    "pair3": {
+        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null},
+        "id2": {"fullname": "A. Craw", "birthdate": "20-02-1985", "bsn": null}
+    },
+    "pair4": {
+        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": 931212312},
+        "id2": {"fullname": "Petty Smith", "birthdate": "20-02-1985", "bsn": 931212312}
+    },
+    "pair5": {
+        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null},
+        "id2": {"fullname": "Andew Craw", "birthdate": "20-02-1985", "bsn": null}
+    },
+    "pair6": {
+        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null},
+        "id2": {"fullname": "Andy Craw", "birthdate": "20-02-1985", "bsn": null}
+    }
+}

@@ -28,34 +28,35 @@
 {% set first_name_string_distance_flag =  values.first_name_string_distance %}
 {% set last_name_flag =  values.identical_last_name %}
 {% set birthdate_flag =  values.identical_birthdate %}
+{% set bsn_flag =  values.identical_bsn %}
 {% set score =  values.score %}
 
 <tr>
     <th>{{ id }}</th>
 
-    {% include "first_name_logic.html" %}
+    {% include "sub/first_name_logic.html" %}
     {{ values.firstname1 }}</td>
-    {% include "last_name_logic.html" %}
+    {% include "sub/last_name_logic.html" %}
     {{ values.lastname1 }}</td>
-    {% include "birthdate_logic.html" %}
+    {% include "sub/birthdate_logic.html" %}
     {{ values.birthdate1 }}
     </td>
 
-    {% include "bsn_logic.html" %}
+    {% include "sub/bsn_logic.html" %}
     {{ values.bsn1 }}</td>
 
-    {% include "first_name_logic.html" %}
+    {% include "sub/first_name_logic.html" %}
     {{ values.firstname2 }}</td>
-    {% include "last_name_logic.html" %}
+    {% include "sub/last_name_logic.html" %}
     {{ values.lastname2 }}</td>
-    {% include "birthdate_logic.html" %}
+    {% include "sub/birthdate_logic.html" %}
     {{ values.birthdate2 }}
     </td>
 
-    {% include "bsn_logic.html" %}
+    {% include "sub/bsn_logic.html" %}
     {{ values.bsn2 }}</td>
 
-    {% include "score_logic.html" %}
+    {% include "sub/score_logic.html" %}
     {{ score }}</td>
 </tr>
 {% endfor %}

@@ -5,12 +5,8 @@ from nltk.metrics.distance import edit_distance
 
 """
 TODO:
-- unit test
-- auth
 - doc
 - docker & tox
-- SAP
-- lambda <= get_last_name_score()
 """
 
 
@@ -23,8 +19,8 @@ class IdentityMatchDataframe:
     firstname_cols = ["firstname1", "firstname2"]
     lastname_cols = ["lastname1", "lastname2"]
 
-    def import_and_process_data(self, data_path: str):
-        data = json.load(open(data_path, "r"))
+    def import_and_process_data(self, file_path: str):
+        data = json.load(open(file_path, "r"))
         self.raw_data = pd.DataFrame.from_dict(data, orient="index")
         self.clean_data = self.prepare_clean_data()
         self.identity_match_scores = self.calculate()
@@ -70,6 +66,7 @@ class IdentityMatchDataframe:
         not_identical_birthdate_mask = self.compare_values(
             "birthdate1", "birthdate2", "not"
         )
+        self.clean_data["identical_bsn"] = identical_bsn_mask
         no_match_values = pd.Series(0.0, index=self.clean_data.index)
         match_values = pd.Series(1.0, index=self.clean_data.index)
 
@@ -79,14 +76,13 @@ class IdentityMatchDataframe:
             + self.get_birthdate_score()
         )
 
+        # needs roundind to avoid results with long trail such as 0.6000000000000001
         return no_match_values.where(
             not_identical_birthdate_mask,
             other=match_values.where(
                 identical_bsn_mask, other=no_bsn_date_match_values
             ),
-        ).round(
-            2
-        )  # avoiding results with long trail such as 0.6000000000000001
+        ).round(2)
 
     def get_notna_mask(self, col1_name: str, col2_name: str) -> pd.Series:
         return self.clean_data[col1_name].notna() & self.clean_data[col2_name].notna()

@@ -22,5 +22,13 @@
     "pair6": {
         "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null},
         "id2": {"fullname": "Andy Craw", "birthdate": "20-02-1985", "bsn": null}
+    },
+    "pair7": {
+        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null},
+        "id2": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null}
+    },
+    "pair8": {
+        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": 931212312},
+        "id2": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": 931212312}
     }
 }

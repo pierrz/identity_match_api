@@ -14,5 +14,9 @@
     "pair4": {
         "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": 931212312},
         "id2": {"fullname": "Petty Smith", "birthdate": "20-02-1985", "bsn": 931212312}
+    },
+    "pair5": {
+        "id1": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null},
+        "id2": {"fullname": "Andrew Craw", "birthdate": "20-02-1985", "bsn": null}
     }
 }

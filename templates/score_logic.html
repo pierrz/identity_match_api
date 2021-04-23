@@ -1,0 +1,9 @@
+{% if score == 0.4 %}
+    <td class="is-danger" style="text-align: center">
+{% elif score == 0.6 %}
+    <td class="is-alert" style="text-align: center">
+{% elif score == 0.95 %}
+    <td class="is-warning" style="text-align: center">
+{% elif score == 1.0 %}
+    <td class="is-success" style="text-align: center">
+{% endif %}

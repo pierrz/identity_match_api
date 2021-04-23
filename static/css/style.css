@@ -1,0 +1,22 @@
+:root {
+    --success_light: rgba(72, 199, 116, .8);
+    --warning_light: rgba(255, 221, 87, .9);
+}
+
+table td.is-alert {
+    background-color: #F06929;
+    border: #F06929;
+    color: #fff;
+}
+
+table td.is-success_light {
+    background-color: var(--success_light);
+    border: var(--success_light);
+    color: #fff;
+}
+
+table td.is-warning_light {
+    background-color: var(--warning_light);
+    border: var(--warning_light);
+    color: rgba(0,0,0,.7);
+}

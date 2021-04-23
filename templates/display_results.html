@@ -1,0 +1,65 @@
+<html>
+<head>
+    <title>Identity match service</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+    <link href="{{ url_for('static', path='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+<h1 class="title" style="margin-top: 5rem; text-align: center;">Identity match service</h1>
+<table class="table" style="margin: auto;">
+    <thead>
+    <tr>
+      <th><abbr title="ID">ID</abbr></th>
+      <th><abbr title="firstname1">First name 1</abbr></th>
+        <th><abbr title="lastname1">Last name 1</abbr></th>
+        <th><abbr title="birthdate1">Birth date 1</abbr></th>
+        <th><abbr title="bsn1">BSN 1</abbr></th>
+        <th><abbr title="firstname2">First name 2</abbr></th>
+        <th><abbr title="lastname2">Last name 2</abbr></th>
+        <th><abbr title="birthdate2">Birth date 2</abbr></th>
+        <th><abbr title="bsn2">BSN 2</abbr></th>
+      <th><abbr title="scores">Identity match score</abbr></th>
+    </tr>
+    </thead>
+    <tbody>
+
+{% for id, values in data.items() %}
+{% set first_name_flag =  values.identical_first_name %}
+{% set first_name_string_distance_flag =  values.first_name_string_distance %}
+{% set last_name_flag =  values.identical_last_name %}
+{% set birthdate_flag =  values.identical_birthdate %}
+{% set score =  values.score %}
+
+<tr>
+    <th>{{ id }}</th>
+
+    {% include "first_name_logic.html" %}
+    {{ values.firstname1 }}</td>
+    {% include "last_name_logic.html" %}
+    {{ values.lastname1 }}</td>
+    {% include "birthdate_logic.html" %}
+    {{ values.birthdate1 }}
+    </td>
+
+    {% include "bsn_logic.html" %}
+    {{ values.bsn1 }}</td>
+
+    {% include "first_name_logic.html" %}
+    {{ values.firstname2 }}</td>
+    {% include "last_name_logic.html" %}
+    {{ values.lastname2 }}</td>
+    {% include "birthdate_logic.html" %}
+    {{ values.birthdate2 }}
+    </td>
+
+    {% include "bsn_logic.html" %}
+    {{ values.bsn2 }}</td>
+
+    {% include "score_logic.html" %}
+    {{ score }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</body>
+</html>

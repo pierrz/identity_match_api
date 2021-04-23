@@ -44,9 +44,12 @@ class IdentityMatchDataframe:
                 .rename(columns=mapping)
                 .astype(dtypes)
             )
-            expanded_dicts_df[f"firstname{col[-1]}"] = self.get_first_name_string(expanded_dicts_df[f"fullname{col[-1]}"])
+            expanded_dicts_df[f"firstname{col[-1]}"] = self.get_first_name_string(
+                expanded_dicts_df[f"fullname{col[-1]}"]
+            )
             expanded_dicts_df[f"lastname{col[-1]}"] = self.get_last_name_string(
-                expanded_dicts_df[f"fullname{col[-1]}"])
+                expanded_dicts_df[f"fullname{col[-1]}"]
+            )
             expanded_dicts_df.drop(columns=[f"fullname{col[-1]}"], inplace=True)
             df_list.append(expanded_dicts_df)
 
@@ -81,7 +84,9 @@ class IdentityMatchDataframe:
             other=match_values.where(
                 identical_bsn_mask, other=no_bsn_date_match_values
             ),
-        ).round(2)  # avoiding results with long trail such as 0.6000000000000001
+        ).round(
+            2
+        )  # avoiding results with long trail such as 0.6000000000000001
 
     def get_notna_mask(self, col1_name: str, col2_name: str) -> pd.Series:
         return self.clean_data[col1_name].notna() & self.clean_data[col2_name].notna()
@@ -94,11 +99,10 @@ class IdentityMatchDataframe:
         return identical_values_mask & not_na_mask
 
     def get_birthdate_score(self) -> pd.Series:
-        identical_dates_mask = self.compare_values(
-            "birthdate1", "birthdate2"
-        )
+        identical_birthdates_mask = self.compare_values("birthdate1", "birthdate2")
+        self.clean_data["identical_birthdate"] = identical_birthdates_mask
         return pd.Series(0.4, index=self.clean_data.index).where(
-            identical_dates_mask, other=0.0
+            identical_birthdates_mask, other=0.0
         )
 
     @staticmethod
@@ -113,17 +117,19 @@ class IdentityMatchDataframe:
 
     def get_last_name_score(self) -> pd.Series:
         identical_last_name_mask = self.compare_values(*self.lastname_cols)
+        self.clean_data["identical_last_name"] = identical_last_name_mask
         return pd.Series(0.4, index=self.clean_data.index).where(
             identical_last_name_mask, other=0.0
         )
 
     def get_first_name_score(self) -> pd.Series:
         identical_first_name_mask = self.compare_values(*self.firstname_cols)
+        self.clean_data["identical_first_name"] = identical_first_name_mask
         return pd.Series(0.2, index=self.clean_data.index).where(
-            identical_first_name_mask, other=self.get_fullname_similarity_score()
+            identical_first_name_mask, other=self.get_firstname_string_distance_score()
         )
 
-    def get_fullname_similarity_score(self) -> pd.Series:
+    def get_firstname_string_distance_score(self) -> pd.Series:
         col1_name, col2_name = self.firstname_cols
 
         score_values = list()
@@ -138,10 +144,19 @@ class IdentityMatchDataframe:
             )
 
             # check if 2nd string is either initials or similar enough for typo/diminutive
-            if r[col2_name] == f"{r[col1_name][0]}." or string_distance <= len(r[col1_name]) / 2:
+            if (
+                r[col2_name] == f"{r[col1_name][0]}."
+                or string_distance <= len(r[col1_name]) / 2
+            ):
                 r_score = 0.15
             else:
                 r_score = 0.0
             score_values.append(r_score)
 
-        return pd.Series(score_values, index=self.clean_data.index)
+        firstname_string_distance_scores = pd.Series(
+            score_values, index=self.clean_data.index
+        )
+        self.clean_data["first_name_string_distance"] = (
+            firstname_string_distance_scores > 0.0
+        )
+        return firstname_string_distance_scores

@@ -3,7 +3,7 @@
 <br>
 
 ### Specifications
-- Based on [FastAPI](fastapi.tiangolo.com/)
+- Based on [FastAPI](https://fastapi.tiangolo.com/)
 - Includes unit tests
 - Uses HTTP Basic Auth
 - Possibility to use either a default data file or to provide a new one

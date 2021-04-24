@@ -2,7 +2,6 @@ import json
 from typing import List, Tuple, Union
 
 import pandas as pd
-
 from utils.src_utils import (
     compare_values,
     get_score,

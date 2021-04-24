@@ -26,7 +26,13 @@
 ##### => Docker
 ``docker-compose up``
 
-####### wip, still some issues with the networking settings ...
+###### wip, still some issues with the networking settings ...
+
+<br>
+
+### Documentation
+
+Visit [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) for an interactive documentation based on Swagger UI.
 
 <br>
 

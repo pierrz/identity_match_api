@@ -3,11 +3,8 @@ from pathlib import Path
 import pandas as pd
 
 from src.identity_match_score import IdentityMatchDataframe
-from utils.test_utils import (
-    get_expected_results_dict,
-    get_filename_base,
-    get_test_fixtures_path,
-)
+from utils.test_utils import (get_expected_results_dict, get_filename_base,
+                              get_test_fixtures_path)
 
 
 def test_identity_match_score():

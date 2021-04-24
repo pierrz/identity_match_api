@@ -3,12 +3,9 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 
-from utils.src_utils import (
-    compare_values,
-    get_score,
-    get_string_distance_scores,
-    remove_string_with_regex,
-)
+from utils.src_utils import (compare_values, get_score,
+                             get_string_distance_scores,
+                             remove_string_with_regex)
 
 
 class IdentityMatchDataframe:

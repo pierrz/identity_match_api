@@ -1,13 +1,14 @@
-from typing import Union
-import pandas as pd
 import json
-from nltk.metrics.distance import edit_distance
+from typing import List, Tuple, Union
 
-"""
-TODO:
-- doc
-- docker
-"""
+import pandas as pd
+
+from utils.src_utils import (
+    compare_values,
+    get_score,
+    get_string_distance_scores,
+    remove_string_with_regex,
+)
 
 
 class IdentityMatchDataframe:
@@ -15,9 +16,20 @@ class IdentityMatchDataframe:
     raw_data: pd.DataFrame
     clean_data: pd.DataFrame
     identity_match_scores: pd.Series
-    input_col_names = ["fullname", "birthdate", "bsn"]
-    firstname_cols = ["firstname1", "firstname2"]
-    lastname_cols = ["lastname1", "lastname2"]
+    input_col_names: List[str] = ["fullname", "birthdate", "bsn"]
+    firstname_cols_meta: Tuple[List[str], str] = (
+        ["firstname1", "firstname2"],
+        "identical_first_name",
+    )
+    lastname_cols_meta: Tuple[List[str], str] = (
+        ["lastname1", "lastname2"],
+        "identical_last_name",
+    )
+    birthdate_cols_meta: Tuple[List[str], str] = (
+        ["birthdate1", "birthdate2"],
+        "identical_birthdate",
+    )
+    bsn_cols_meta: Tuple[List[str], str] = (["bsn1", "bsn2"], "identical_bsn")
 
     def import_and_process_data(self, file_path: str):
         data = json.load(open(file_path, "r"))
@@ -33,10 +45,7 @@ class IdentityMatchDataframe:
             dtypes = dict(zip(current_col_names, [str, "datetime64[ns]", "Int64"]))
             mapping = dict(zip(self.input_col_names, current_col_names))
             expanded_dicts_df = (
-                pd.DataFrame(
-                    self.raw_data[col].tolist(),
-                    index=self.raw_data.index,
-                )
+                pd.DataFrame(self.raw_data[col].tolist(), index=self.raw_data.index,)
                 .rename(columns=mapping)
                 .astype(dtypes)
             )
@@ -62,11 +71,11 @@ class IdentityMatchDataframe:
             o If the date of birth matches: + 40%
         """
 
-        identical_bsn_mask = self.compare_values("bsn1", "bsn2")
-        not_identical_birthdate_mask = self.compare_values(
-            "birthdate1", "birthdate2", "not"
+        identical_bsn_mask = compare_values(self.bsn_cols_meta[0], self.clean_data)
+        not_identical_birthdate_mask = compare_values(
+            self.birthdate_cols_meta[0], self.clean_data, "not"
         )
-        self.clean_data["identical_bsn"] = identical_bsn_mask
+        self.clean_data[self.bsn_cols_meta[1]] = identical_bsn_mask
         no_match_values = pd.Series(0.0, index=self.clean_data.index)
         match_values = pd.Series(1.0, index=self.clean_data.index)
 
@@ -84,75 +93,45 @@ class IdentityMatchDataframe:
             ),
         ).round(2)
 
-    def get_notna_mask(self, col1_name: str, col2_name: str) -> pd.Series:
-        return self.clean_data[col1_name].notna() & self.clean_data[col2_name].notna()
-
-    def compare_values(self, col1_name: str, col2_name: str, *args) -> pd.Series:
-        not_na_mask = self.get_notna_mask(col1_name, col2_name)
-        identical_values_mask = self.clean_data[col1_name] == self.clean_data[col2_name]
-        if len(args) == 1:
-            return ~identical_values_mask & not_na_mask
-        return identical_values_mask & not_na_mask
-
-    def get_birthdate_score(self) -> pd.Series:
-        identical_birthdates_mask = self.compare_values("birthdate1", "birthdate2")
-        self.clean_data["identical_birthdate"] = identical_birthdates_mask
-        return pd.Series(0.4, index=self.clean_data.index).where(
-            identical_birthdates_mask, other=0.0
-        )
-
     @staticmethod
     def get_last_name_string(values: pd.Series) -> pd.Series:
-        return values.str.replace(".* ", "", regex=True)
+        return remove_string_with_regex(values, ".* ")
 
     @staticmethod
     def get_first_name_string(values: Union[pd.Series, str]) -> Union[pd.Series, str]:
         if type(values) == str:
             values = pd.Series(values)
-        return values.str.replace(" .*", "", regex=True)
+        return remove_string_with_regex(values, " .*")
+
+    def get_birthdate_score(self) -> pd.Series:
+        return get_score(
+            self.birthdate_cols_meta[0],
+            self.clean_data,
+            self.birthdate_cols_meta[1],
+            0.4,
+        )
 
     def get_last_name_score(self) -> pd.Series:
-        identical_last_name_mask = self.compare_values(*self.lastname_cols)
-        self.clean_data["identical_last_name"] = identical_last_name_mask
-        return pd.Series(0.4, index=self.clean_data.index).where(
-            identical_last_name_mask, other=0.0
+        return get_score(
+            self.lastname_cols_meta[0], self.clean_data, self.lastname_cols_meta[1], 0.4
         )
 
     def get_first_name_score(self) -> pd.Series:
-        identical_first_name_mask = self.compare_values(*self.firstname_cols)
-        self.clean_data["identical_first_name"] = identical_first_name_mask
-        return pd.Series(0.2, index=self.clean_data.index).where(
-            identical_first_name_mask, other=self.get_firstname_string_distance_score()
+        scores = get_score(
+            self.firstname_cols_meta[0],
+            self.clean_data,
+            self.firstname_cols_meta[1],
+            0.2,
+        )
+        return scores.where(
+            scores > 0, other=self.get_firstname_string_distance_score()
         )
 
     def get_firstname_string_distance_score(self) -> pd.Series:
-        col1_name, col2_name = self.firstname_cols
 
-        score_values = list()
-        for idx, r in self.clean_data[self.firstname_cols].iterrows():
-
-            # Calculate the Levenshtein edit-distance between two strings
-            string_distance = edit_distance(
-                r[col1_name],
-                r[col2_name],
-                substitution_cost=1,
-                transpositions=False,
-            )
-
-            # check if 2nd string is either initials or similar enough for typo/diminutive
-            if (
-                r[col2_name] == f"{r[col1_name][0]}."
-                or string_distance <= len(r[col1_name]) / 2
-            ):
-                r_score = 0.15
-            else:
-                r_score = 0.0
-            score_values.append(r_score)
-
-        firstname_string_distance_scores = pd.Series(
-            score_values, index=self.clean_data.index
+        distance_scores = pd.Series(
+            get_string_distance_scores(self.firstname_cols_meta[0], self.clean_data),
+            index=self.clean_data.index,
         )
-        self.clean_data["first_name_string_distance"] = (
-            firstname_string_distance_scores > 0.0
-        )
-        return firstname_string_distance_scores
+        self.clean_data["first_name_string_distance"] = distance_scores > 0.0
+        return distance_scores

@@ -1,51 +1,24 @@
-from src.identity_match_score import IdentityMatchDataframe
-from pathlib import Path
-import os
-import pandas as pd
-from typing import Optional
+import secrets
+
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import secrets
-from fastapi import Depends, FastAPI, HTTPException, status, Request
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from pydantic import BaseModel
 
+from src.models.models import ScoresFrameAPI, ScoresFrameUI
 
 app = FastAPI()
-default_data_path = Path(os.sep, "data", "examples.json")
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 security = HTTPBasic()
-
-
-class ScoresFrameAPI(BaseModel):
-
-    source_path: Optional[str] = None
-    data: pd.Series
-
-    def prepare_results(self, file_path: str = default_data_path):
-        processed_data = IdentityMatchDataframe()
-        processed_data.import_and_process_data(file_path)
-        self.data = processed_data.identity_match_scores
-
-
-class ScoresFrameUI(ScoresFrameAPI):
-    data_for_ui: dict
-    def prepare_data_for_ui(self) -> dict:
-        """Prepare an extended and refined version of the 'clean_data' frame"""
-        self.data.clean_data["score"] = self.data.identity_match_scores
-        for col in ["birthdate1", "birthdate2"]:
-            self.data.clean_data[col] = self.data.clean_data[col].dt.strftime("%Y-%m-%d")
-        self.data_for_ui = self.data.clean_data.to_dict(orient="index")
 
 
 def check_api_key(api_key: str) -> str:
     correct_api_key = secrets.compare_digest(api_key, "apikey123")
     if not correct_api_key:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect API key",
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect API key",
         )
     else:
         return True
@@ -63,29 +36,56 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     return credentials.username
 
 
-@app.get("/service_api_default")
-async def export_default_results(apikey: str):
+def prepare_results_based_on_filepath(results, filepath: str):
+    if filepath is None:
+        results.prepare_results()
+    else:
+        results.prepare_results(filepath)
+
+
+# API elements
+def get_api_data(apikey: str, filepath: str = None):
     if check_api_key(apikey):
         results = ScoresFrameAPI()
-        results.prepare_results()
-        return results
+        prepare_results_based_on_filepath(results, filepath)
+        results.prepare_data_for_api()
+        return results.api_data
+
+
+@app.get("/service_api_default")
+async def export_default_results(apikey: str):
+    return get_api_data(apikey)
 
 
 @app.get("/service_api")
 async def export_results(filepath: str, apikey: str):
-    if check_api_key(apikey):
-        results = ScoresFrameAPI()
-        results.prepare_results(filepath)
-        return results
+    return get_api_data(apikey, filepath)
+
+
+# UI elements
+def get_ui_data(filepath: str = None):
+    results = ScoresFrameUI()
+    prepare_results_based_on_filepath(results, filepath)
+    results.prepare_data_for_ui()
+    return results.ui_data
+
+
+@app.get("/service_ui_default", response_class=HTMLResponse)
+def display_default_results(
+    request: Request, username: str = Depends(get_current_username)
+):
+    return templates.TemplateResponse(
+        "display_results.html", {"request": request, "data": get_ui_data()}
+    )
 
 
 @app.get("/service_ui", response_class=HTMLResponse)
-def display_results(request: Request, username: str = Depends(get_current_username)):
-
-    results = ScoresFrameUI()
-    results.prepare_results()
-    results.prepare_data_for_ui()
-
+def display_results(
+    filepath: str,
+    apikey: str,
+    request: Request,
+    username: str = Depends(get_current_username),
+):
     return templates.TemplateResponse(
-        "display_results.html", {"request": request, "data": results.data_for_ui}
+        "display_results.html", {"request": request, "data": get_ui_data(filepath)}
     )

@@ -1,9 +1,9 @@
 pandas
 nltk
-numpy
 typing
+aiofiles
+jinja2
 black
 flake8
 isort
-tox
 pytest

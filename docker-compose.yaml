@@ -8,10 +8,10 @@ services:
     container_name: "identity_match_api_container"
     image: "tiangolo/uvicorn-gunicorn-fastapi:python3.8"
     restart: "always"
-    volumes:
-      - ./app:/app
-      - ./data:/data
-    command:
-      - cd app
-      - pip install -r requirements.txt
-      - uvicorn src.main:app --reload
+#    volumes:
+#      - ./app:/app
+#      - ./data:/data
+#    command: >
+#      - sh -c "cd app"
+#      - pip install -r requirements.txt
+#      - uvicorn src.main:app --reload

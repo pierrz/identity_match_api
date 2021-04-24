@@ -6,7 +6,7 @@ from nltk.metrics.distance import edit_distance
 """
 TODO:
 - doc
-- docker & tox
+- docker
 """
 
 

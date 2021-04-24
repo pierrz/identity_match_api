@@ -10,16 +10,16 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 
 app = FastAPI()
-default_data_path = Path(os.getcwd(), "data", "examples.json")
+# default_data_path = Path(os.getcwd(), "data", "examples.json")
+default_data_path = Path(os.sep, "data", "examples.json")
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 security = HTTPBasic()
 
 
 def check_api_key(api_key: str) -> str:
-    list_api_keys = ["apikey123"]
     correct_api_key = secrets.compare_digest(api_key, "apikey123")
-    if not (api_key in list_api_keys and correct_api_key):
+    if not correct_api_key:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect API key",
@@ -46,13 +46,14 @@ def prepare_results(file_path: str = default_data_path):
     return processed_data
 
 
-@app.get("/service_api/default")
-async def export_default_results():
-    results = prepare_results(default_data_path)
-    return {"identity_match_scores": results.identity_match_scores}
+@app.get("/service_api_default")
+async def export_default_results(apikey: str):
+    if check_api_key(apikey):
+        results = prepare_results(default_data_path)
+        return {"identity_match_scores": results.identity_match_scores}
 
 
-@app.get("/service_api/")
+@app.get("/service_api")
 async def export_results(filepath: str, apikey: str):
     if check_api_key(apikey):
         results = prepare_results(filepath)

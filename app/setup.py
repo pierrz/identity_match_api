@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 
-
 setup(
     name="identity_match_api",
     version="0.1.0",

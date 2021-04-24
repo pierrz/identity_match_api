@@ -3,7 +3,3 @@ nltk
 typing
 aiofiles
 jinja2
-black
-flake8
-isort
-pytest

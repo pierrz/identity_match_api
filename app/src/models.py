@@ -1,8 +1,9 @@
 from typing import Optional
 
 import pandas as pd
-from config import Config as cfg
 from pydantic import BaseModel
+
+from config import Config as cfg
 from src.identity_match_score import IdentityMatchDataframe
 
 

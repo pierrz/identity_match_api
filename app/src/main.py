@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
 from config import Config as cfg
 from src.models import ScoresFrameAPI, ScoresFrameUI
 

@@ -26,7 +26,7 @@
 ##### => Docker
 ``docker-compose up``
 
-###### wip, still some issues with the networking settings ...
+###### still some issues to access the API urls from the host (wip on networking settings ...)
 
 <br>
 

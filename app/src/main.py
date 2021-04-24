@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from src.models.models import ScoresFrameAPI, ScoresFrameUI
+from src.config import Config as cfg
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -15,7 +16,7 @@ security = HTTPBasic()
 
 
 def check_api_key(api_key: str) -> str:
-    correct_api_key = secrets.compare_digest(api_key, "apikey123")
+    correct_api_key = secrets.compare_digest(api_key, cfg.apikey_test)
     if not correct_api_key:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect API key",
@@ -25,8 +26,8 @@ def check_api_key(api_key: str) -> str:
 
 
 def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
-    correct_username = secrets.compare_digest(credentials.username, "service_ui_admin")
-    correct_password = secrets.compare_digest(credentials.password, "ponytail")
+    correct_username = secrets.compare_digest(credentials.username, cfg.ui_admin_id)
+    correct_password = secrets.compare_digest(credentials.password, cfg.ui_admin_pwd)
     if not (correct_username and correct_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -8,11 +8,11 @@
 (see current input scheme with the default data at `data/examples.json`)
 - SAP interface using [Bulma.io](https://www.bulma.io)
 
-#### Install
-``sh install.sh``
+#### Build & start
+``sh build.sh``
 
-#### Test & start
-``source venv/bin/activate`` (enter the virtual environment)
+#### Test & manually (re)start
+``docker exec -it id_match_api_container bash`` (enter the container)
 
 ``pytest``
 

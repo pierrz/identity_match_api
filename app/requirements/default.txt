@@ -1,7 +1,7 @@
-fastapi
-uvicorn
 pandas
 nltk
 typing
 aiofiles
 jinja2
+pytest
+requests

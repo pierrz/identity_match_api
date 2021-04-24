@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import pandas as pd
 from nltk.metrics.distance import edit_distance
@@ -22,9 +22,8 @@ def compare_values(col_list: List, df: pd.DataFrame, *args) -> pd.Series:
     return identical_values_mask & not_na_mask
 
 
-def get_score(
-    col_list: List, df: pd.DataFrame, clean_col_flag_name: str, default_value: float
-) -> pd.Series:
+def get_score(meta: Tuple, df: pd.DataFrame, default_value: float) -> pd.Series:
+    col_list, clean_col_flag_name = meta
     identical_values_mask = compare_values(col_list, df)
     df[clean_col_flag_name] = identical_values_mask
     return pd.Series(default_value, index=df.index).where(

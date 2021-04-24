@@ -101,25 +101,13 @@ class IdentityMatchDataframe:
         return remove_string_with_regex(values, " .*")
 
     def get_birthdate_score(self) -> pd.Series:
-        return get_score(
-            self.birthdate_cols_meta[0],
-            self.clean_data,
-            self.birthdate_cols_meta[1],
-            0.4,
-        )
+        return get_score(self.birthdate_cols_meta, self.clean_data, 0.4)
 
     def get_last_name_score(self) -> pd.Series:
-        return get_score(
-            self.lastname_cols_meta[0], self.clean_data, self.lastname_cols_meta[1], 0.4
-        )
+        return get_score(self.lastname_cols_meta, self.clean_data, 0.4)
 
     def get_first_name_score(self) -> pd.Series:
-        scores = get_score(
-            self.firstname_cols_meta[0],
-            self.clean_data,
-            self.firstname_cols_meta[1],
-            0.2,
-        )
+        scores = get_score(self.firstname_cols_meta, self.clean_data, 0.2)
         return scores.where(
             scores > 0, other=self.get_firstname_string_distance_score()
         )

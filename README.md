@@ -1,6 +1,8 @@
 # Identity match API
 
-#### Specifications
+<br>
+
+### Specifications
 - Based on [FastAPI](fastapi.tiangolo.com/)
 - Includes unit tests
 - Uses HTTP Basic Auth
@@ -8,28 +10,44 @@
 (see current input scheme with the default data at `data/examples.json`)
 - SAP interface using [Bulma.io](https://www.bulma.io)
 
-#### Build & start
-``sh build.sh``
+<br>
 
-#### Test & manually (re)start
-``docker exec -it id_match_api_container bash`` (enter the container)
+### Build, test and start
 
-``pytest``
+##### => **Virtualenv**
+``sh install.sh``
+
+``source venv/bin/activate``
 
 ``uvicorn src.main:app --reload``
 
-#### Check
+<br>
+
+##### => Docker
+``docker-compose up``
+
+####### wip, still some issues with the networking settings ...
+
+<br>
+
+### Access
 
 Default API
 - endpoint: [http://127.0.0.1:8000/service_api_default](http://127.0.0.1:8000/service_api_default)
 - parameters: ``apikey`` (default = apikey123)
 
+<br>
+
 Specific API
 - endpoint: [http://127.0.0.1:8000/service_api](http://127.0.0.1:8000/service_api)
 - parameters: ``apikey`` (default = apikey123), ``filepath`` : path to data file
 
+<br>
+
 To access the related UI, simply change the string `_api` into `_ui` within the API urls.
 Then log in with the id `service_ui_admin` and password `ponytail`
+
+<br>
 
 API links: 
 - [http://127.0.0.1:8000/service_api?apikey=apikey123&filepath=../data/examples.json](http://127.0.0.1:8000/service_api?apikey=apikey123&filepath=../data/examples.json)

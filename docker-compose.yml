@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+
+  api_test:
+    build:
+      context: .
+    image: id_match_api_image
+    command: pytest
+
+  api_prod:
+    image: id_match_api_image
+    command: uvicorn src.main:app --reload
+    expose:
+      - 5000
+    depends_on:
+      - api_test

@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from src.main import app
+from main import app
 from utils.test_utils import get_expected_results_dict
 
 client = TestClient(app)

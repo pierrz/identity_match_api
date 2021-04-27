@@ -24,7 +24,9 @@
 <br>
 
 ##### => Docker
-``docker-compose up``
+``docker-compose up -d``
+
+``docker exec -it api_prod bash``
 
 ###### still some issues to access the API urls from the host (wip on networking settings ...)
 

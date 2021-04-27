@@ -3,15 +3,17 @@ version: '3.8'
 services:
 
   api_test:
+    container_name: api_test
     build:
       context: .
     image: id_match_api_image
     command: pytest
 
   api_prod:
+    container_name: api_prod
     image: id_match_api_image
-    command: uvicorn src.main:app --reload
-    expose:
-      - 5000
+    command: uvicorn main:app --reload
+    ports:
+      - "8000:8000"
     depends_on:
       - api_test
